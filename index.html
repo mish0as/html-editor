@@ -1,355 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>HTML Editor</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
-  <!-- CodeMirror CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
 
-    :root {
-      --primary: #0699fa;
-    }
+  <head>
+    <meta charset="UTF-8">
+    <title>HTML Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+    <!-- Include js-beautify from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-css.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-    .dark-mode {
-      --primary: #45fa73;
-    }
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-    html, body {
-      height: 100%;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+      :root {
+        --primary: #0699fa;
+      }
 
-    #toolbar {
-      padding: 8px 16px;
-      background: rgba(20, 20, 20, 1);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
+      .dark-mode {
+        --primary: #45fa73;
+      }
 
-    .tool-btn {
-      padding: 8px;
-      border-radius: 6px;
-      border: none;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      width: 36px;
-      height: 36px;
-    }
+      html,
+      body {
+        height: 100%;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
 
-    .tool-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
+      #toolbar {
+        padding: 8px 16px;
+        background: rgba(20, 20, 20, 1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      }
 
-    .tool-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
+      .tool-btn {
+        padding: 8px;
+        border-radius: 6px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+      }
 
-    .tool-btn:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+      .tool-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
 
-    .tool-btn:hover::before {
-      opacity: 1;
-    }
+      .tool-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
 
-    .tool-btn svg {
-      width: 20px;
-      height: 20px;
-      transition: all 0.3s ease;
-    }
+      .tool-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
-    .tool-btn:hover svg {
-      transform: scale(1.1);
-    }
+      .tool-btn:hover::before {
+        opacity: 1;
+      }
 
-    #theme-btn .sun-icon {
-      display: none;
-    }
+      .tool-btn svg {
+        width: 20px;
+        height: 20px;
+        transition: all 0.3s ease;
+      }
 
-    #theme-btn .moon-icon {
-      display: block;
-    }
+      .tool-btn:hover svg {
+        transform: scale(1.1);
+      }
 
-    .dark-mode #theme-btn .sun-icon {
-      display: block;
-    }
+      #theme-btn .sun-icon {
+        display: none;
+      }
 
-    .dark-mode #theme-btn .moon-icon {
-      display: none;
-    }
+      #theme-btn .moon-icon {
+        display: block;
+      }
 
-    .container {
-      height: calc(100% - 40px);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+      .dark-mode #theme-btn .sun-icon {
+        display: block;
+      }
 
-    .horizontal {
-      flex-direction: row;
-    }
+      .dark-mode #theme-btn .moon-icon {
+        display: none;
+      }
 
-    .CodeMirror {
-      height: 100% !important;
-      font-size: 14px;
-    }
+      .container {
+        height: calc(100% - 40px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
-    .CodeMirror, .CodeMirror-scroll {
-      padding: 0 !important;
-      margin: 0 !important;
-    }
+      .horizontal {
+        flex-direction: row;
+      }
 
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
+      .CodeMirror {
+        height: 100% !important;
+        font-size: 14px;
+      }
 
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-    }
+      .CodeMirror,
+      .CodeMirror-scroll {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
 
-    ::-webkit-scrollbar-thumb {
-      background: #95a5a6;
-      border-radius: 4px;
-    }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
 
-    ::-webkit-scrollbar-thumb:hover {
-      background: #7f8c8d;
-    }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
 
-    .dark-mode .CodeMirror {
-      background-color: #282a36 !important;
-    }
+      ::-webkit-scrollbar-thumb {
+        background: #95a5a6;
+        border-radius: 4px;
+      }
 
-    .dark-mode ::-webkit-scrollbar-track {
-      background: #44475a;
-    }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #7f8c8d;
+      }
 
-    .dark-mode ::-webkit-scrollbar-thumb {
-      background: #6272a4;
-    }
+      .dark-mode .CodeMirror {
+        background-color: #282a36 !important;
+      }
 
-    .dark-mode ::-webkit-scrollbar-thumb:hover {
-      background: #50fa7b;
-    }
+      .dark-mode ::-webkit-scrollbar-track {
+        background: #44475a;
+      }
 
-    .dark-mode .tool-btn {
-      background: rgba(255, 255, 255, 0.05);
-    }
+      .dark-mode ::-webkit-scrollbar-thumb {
+        background: #6272a4;
+      }
 
-    .dark-mode .tool-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
+      .dark-mode ::-webkit-scrollbar-thumb:hover {
+        background: #50fa7b;
+      }
 
-    #preview {
-      background: #fff;
-      overflow: auto;
-      margin: 8px;
-      padding: 0;
-    }
+      .dark-mode .tool-btn {
+        background: rgba(255, 255, 255, 0.05);
+      }
 
-    #preview iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-    }
+      .dark-mode .tool-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
 
-    #divider {
-      background: #7f8c8d;
-      z-index: 1;
-      transition: background 0.2s;
-    }
+      #preview {
+        background: #fff;
+        overflow: auto;
+        margin: 8px;
+        padding: 0;
+      }
 
-    #divider:hover {
-      background: #3498db;
-    }
+      #preview iframe {
+        border: none;
+        width: 100%;
+        height: 100%;
+      }
 
-    .vertical #divider {
-      height: 6px;
-      cursor: row-resize;
-    }
+      #divider {
+        background: #7f8c8d;
+        z-index: 1;
+        transition: background 0.2s;
+      }
 
-    .horizontal #divider {
-      width: 6px;
-      cursor: col-resize;
-    }
+      #divider:hover {
+        background: #3498db;
+      }
 
-    .vertical #editor-container {
-      height: 50%;
-      width: 100%;
-    }
+      .vertical #divider {
+        height: 6px;
+        cursor: row-resize;
+      }
 
-    .horizontal #editor-container {
-      width: 50%;
-      height: 100%;
-    }
+      .horizontal #divider {
+        width: 6px;
+        cursor: col-resize;
+      }
 
-    .vertical #preview {
-      flex: 1;
-      width: 100%;
-    }
+      .vertical #editor-container {
+        height: 50%;
+        width: 100%;
+      }
 
-    .horizontal #preview {
-      flex: 1;
-      height: 100%;
-    }
+      .horizontal #editor-container {
+        width: 50%;
+        height: 100%;
+      }
 
-    /* Add some subtle shadows for depth */
-    #toolbar {
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
+      .vertical #preview {
+        flex: 1;
+        width: 100%;
+      }
 
-    #divider {
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
+      .horizontal #preview {
+        flex: 1;
+        height: 100%;
+      }
 
-    .logo {
-      font-family: "Martian Mono", monospace;
-      font-weight: 700;
-      color: var(--primary);
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+      /* Add some subtle shadows for depth */
+      #toolbar {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
 
-    .logo svg {
-      width: 24px;
-      height: 24px;
-      stroke: var(--primary);
-    }
+      #divider {
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
 
-    .toolbar-buttons {
-      display: flex;
-      gap: 12px;
-    }
-  </style>
-</head>
-<body>
-  <div id="toolbar">
-    <div class="logo">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-      <span>htmleditor</span>
+      .logo {
+        font-family: "Martian Mono", monospace;
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logo svg {
+        width: 24px;
+        height: 24px;
+        stroke: var(--primary);
+      }
+
+      .toolbar-buttons {
+        display: flex;
+        gap: 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="toolbar">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span>htmleditor</span>
+      </div>
+
+      <div class="toolbar-buttons">
+        <button id="format-btn" class="tool-btn" title="Format Code" style="font-size: 20px; padding: 5px 10px; line-height: 1;">
+          ✨
+        </button>
+
+        <button id="download-btn" class="tool-btn" title="Download HTML">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3" stroke-width="2"></line>
+          </svg>
+        </button>
+
+        <button id="layout-btn" class="tool-btn" title="Toggle Layout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2" />
+            <path d="M3 9h18M9 21V9" stroke-width="2" />
+          </svg>
+        </button>
+
+        <button id="theme-btn" class="tool-btn" title="Toggle Theme">
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-width="2" />
+          </svg>
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="5" stroke-width="2" />
+            <line x1="12" y1="1" x2="12" y2="3" stroke-width="2" />
+            <line x1="12" y1="21" x2="12" y2="23" stroke-width="2" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke-width="2" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke-width="2" />
+            <line x1="1" y1="12" x2="3" y2="12" stroke-width="2" />
+            <line x1="21" y1="12" x2="23" y2="12" stroke-width="2" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke-width="2" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke-width="2" />
+          </svg>
+        </button>
+
+        <button id="fullscreen-btn" class="tool-btn" title="Toggle Fullscreen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke-width="2" />
+          </svg>
+        </button>
+      </div>
     </div>
-    
-    <div class="toolbar-buttons">
-      <button id="download-btn" class="tool-btn" title="Download HTML">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-          <polyline points="7 10 12 15 17 10"></polyline>
-          <line x1="12" y1="15" x2="12" y2="3" stroke-width="2"></line>
-        </svg>
-      </button>
-      
-      <button id="layout-btn" class="tool-btn" title="Toggle Layout">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/>
-          <path d="M3 9h18M9 21V9" stroke-width="2"/>
-        </svg>
-      </button>
-      
-      <button id="theme-btn" class="tool-btn" title="Toggle Theme">
-        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-width="2"/>
-        </svg>
-        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="12" cy="12" r="5" stroke-width="2"/>
-          <line x1="12" y1="1" x2="12" y2="3" stroke-width="2"/>
-          <line x1="12" y1="21" x2="12" y2="23" stroke-width="2"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke-width="2"/>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke-width="2"/>
-          <line x1="1" y1="12" x2="3" y2="12" stroke-width="2"/>
-          <line x1="21" y1="12" x2="23" y2="12" stroke-width="2"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke-width="2"/>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke-width="2"/>
-        </svg>
-      </button>
-      
-      <button id="fullscreen-btn" class="tool-btn" title="Toggle Fullscreen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke-width="2"/>
-        </svg>
-      </button>
+
+    <div class="container vertical" id="container">
+      <div id="editor-container">
+        <textarea id="editor"></textarea>
+      </div>
+      <div id="divider"></div>
+      <div id="preview">
+        <iframe></iframe>
+      </div>
     </div>
-  </div>
 
-  <div class="container vertical" id="container">
-    <div id="editor-container">
-      <textarea id="editor"></textarea>
-    </div>
-    <div id="divider"></div>
-   <div id="preview">
-    <iframe></iframe>
-</div>
-  </div>
+    <!-- CodeMirror JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
 
-  <!-- CodeMirror JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closetag.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
-
-  <script>
-    // Initialize CodeMirror
-    const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
-      mode: 'htmlmixed',
-      theme: 'default',
-      lineNumbers: true,
-      autoCloseTags: true,
-      autoCloseBrackets: true,
-      indentUnit: 2,
-      tabSize: 2,
-      lineWrapping: true
-    });
-
-    const preview = document.getElementById('preview');
-    const divider = document.getElementById('divider');
-    const container = document.getElementById('container');
-    const layoutBtn = document.getElementById('layout-btn');
-    const themeBtn = document.getElementById('theme-btn');
-    const fullscreenBtn = document.getElementById('fullscreen-btn');
-    const downloadBtn = document.getElementById('download-btn');
-
-    // Default content
-    const defaultContent = `<!DOCTYPE html>
+    <script>
+      // Initialize CodeMirror
+      const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+        mode: 'htmlmixed',
+        theme: 'default',
+        lineNumbers: true,
+        autoCloseTags: true,
+        autoCloseBrackets: true,
+        indentUnit: 2,
+        tabSize: 2,
+        lineWrapping: true
+      });
+      const preview = document.getElementById('preview');
+      const divider = document.getElementById('divider');
+      const container = document.getElementById('container');
+      const layoutBtn = document.getElementById('layout-btn');
+      const themeBtn = document.getElementById('theme-btn');
+      const fullscreenBtn = document.getElementById('fullscreen-btn');
+      const downloadBtn = document.getElementById('download-btn');
+      const formatBtn = document.getElementById('format-btn');
+      // Default content
+      const defaultContent = `<!DOCTYPE html>
 <html>
 <head>
   <title>My Code</title>
@@ -359,166 +372,169 @@
     <p>This is a sample HTML document. Edit me!</p>
 </body>
 </html>`;
-
-    // Load saved preferences
-    function loadPreferences() {
-      // Load layout preference
-      const savedLayout = localStorage.getItem('editorLayout');
-      if (savedLayout === 'horizontal') {
-        container.className = 'container horizontal';
-      } else {
-        container.className = 'container vertical';
+      // Load saved preferences
+      function loadPreferences() {
+        // Load layout preference
+        const savedLayout = localStorage.getItem('editorLayout');
+        if (savedLayout === 'horizontal') {
+          container.className = 'container horizontal';
+        } else {
+          container.className = 'container vertical';
+        }
+        // Load theme preference
+        const savedTheme = localStorage.getItem('editorTheme');
+        if (savedTheme === 'dark') {
+          document.body.classList.add('dark-mode');
+          editor.setOption('theme', 'dracula');
+        } else {
+          document.body.classList.remove('dark-mode');
+          editor.setOption('theme', 'default');
+        }
+        // Load saved content
+        const savedContent = localStorage.getItem('editorContent');
+        if (savedContent) {
+          editor.setValue(savedContent);
+        } else {
+          editor.setValue(defaultContent);
+        }
+        resetSizes();
       }
-      
-      // Load theme preference
-      const savedTheme = localStorage.getItem('editorTheme');
-      if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        editor.setOption('theme', 'dracula');
-      } else {
-        document.body.classList.remove('dark-mode');
-        editor.setOption('theme', 'default');
+      // Save editor content to localStorage
+      function saveEditorContent() {
+        const content = editor.getValue();
+        localStorage.setItem('editorContent', content);
       }
-      
-      // Load saved content
-      const savedContent = localStorage.getItem('editorContent');
-      if (savedContent) {
-        editor.setValue(savedContent);
-      } else {
-        editor.setValue(defaultContent);
+      // Initial render
+      function updatePreview() {
+        const content = editor.getValue();
+        saveEditorContent(); // Save content whenever it changes
+        // Clear existing iframe if it exists
+        let iframe = preview.querySelector('iframe');
+        // Create new iframe if it doesn't exist
+        if (!iframe) {
+          iframe = document.createElement('iframe');
+          preview.innerHTML = '';
+          preview.appendChild(iframe);
+        }
+        // Set the content using srcdoc for proper rendering
+        iframe.srcdoc = content;
+        // Ensure proper sizing
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
       }
-      
-      resetSizes();
-    }
-
-    // Save editor content to localStorage
-    function saveEditorContent() {
-      const content = editor.getValue();
-      localStorage.setItem('editorContent', content);
-    }
-
-    // Initial render
-function updatePreview() {
-    const content = editor.getValue();
-    saveEditorContent(); // Save content whenever it changes
-    
-    // Clear existing iframe if it exists
-    let iframe = preview.querySelector('iframe');
-    
-    // Create new iframe if it doesn't exist
-    if (!iframe) {
-        iframe = document.createElement('iframe');
-        preview.innerHTML = '';
-        preview.appendChild(iframe);
-    }
-    
-    // Set the content using srcdoc for proper rendering
-    iframe.srcdoc = content;
-    
-    // Ensure proper sizing
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
-}
-
-    editor.on('change', updatePreview);
-    
-    // Also save content periodically in case of rapid changes
-    setInterval(saveEditorContent, 5000);
-
-    // Layout toggle
-    layoutBtn.addEventListener('click', () => {
-      const isVertical = container.classList.contains('vertical');
-      container.className = isVertical ? 'container horizontal' : 'container vertical';
-      localStorage.setItem('editorLayout', isVertical ? 'horizontal' : 'vertical');
-      resetSizes();
-    });
-
-    // Theme toggle
-    themeBtn.addEventListener('click', () => {
-      const isDark = document.body.classList.toggle('dark-mode');
-      editor.setOption('theme', isDark ? 'dracula' : 'default');
-      localStorage.setItem('editorTheme', isDark ? 'dark' : 'light');
-    });
-
-    // Fullscreen toggle
-    fullscreenBtn.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      editor.on('change', updatePreview);
+      // Also save content periodically in case of rapid changes
+      setInterval(saveEditorContent, 5000);
+      // Format code using js-beautify
+      formatBtn.addEventListener('click', () => {
+        const content = editor.getValue();
+        const formatted = html_beautify(content, {
+          indent_size: 2,
+          indent_char: ' ',
+          max_preserve_newlines: 1,
+          preserve_newlines: true,
+          keep_array_indentation: false,
+          break_chained_methods: false,
+          indent_scripts: 'normal',
+          brace_style: 'collapse',
+          space_before_conditional: true,
+          unescape_strings: false,
+          jslint_happy: false,
+          end_with_newline: false,
+          wrap_line_length: 0,
+          indent_inner_html: true,
+          comma_first: false,
+          e4x: false,
+          indent_empty_lines: false
         });
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
+        editor.setValue(formatted);
+      });
+      // Layout toggle
+      layoutBtn.addEventListener('click', () => {
+        const isVertical = container.classList.contains('vertical');
+        container.className = isVertical ? 'container horizontal' : 'container vertical';
+        localStorage.setItem('editorLayout', isVertical ? 'horizontal' : 'vertical');
+        resetSizes();
+      });
+      // Theme toggle
+      themeBtn.addEventListener('click', () => {
+        const isDark = document.body.classList.toggle('dark-mode');
+        editor.setOption('theme', isDark ? 'dracula' : 'default');
+        localStorage.setItem('editorTheme', isDark ? 'dark' : 'light');
+      });
+      // Fullscreen toggle
+      fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable fullscreen: ${err.message}`);
+          });
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
+        }
+      });
+      // Download functionality
+      downloadBtn.addEventListener('click', () => {
+        const content = editor.getValue();
+        const blob = new Blob([content], {
+          type: 'text/html'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'document.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+      // Resize functionality
+      let isDragging = false;
+      divider.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        isDragging = true;
+        document.body.style.cursor = container.classList.contains('horizontal') ? 'col-resize' : 'row-resize';
+      });
+      window.addEventListener('mouseup', function() {
+        isDragging = false;
+        document.body.style.cursor = 'default';
+      });
+      window.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        if (container.classList.contains('horizontal')) {
+          const containerRect = container.getBoundingClientRect();
+          const newWidth = e.clientX - containerRect.left;
+          const containerWidth = containerRect.width;
+          const percentage = (newWidth / containerWidth) * 100;
+          document.querySelector('#editor-container').style.width = Math.max(20, Math.min(80, percentage)) + '%';
+        } else {
+          const containerRect = container.getBoundingClientRect();
+          const newHeight = e.clientY - containerRect.top;
+          const containerHeight = containerRect.height;
+          const percentage = (newHeight / containerHeight) * 100;
+          document.querySelector('#editor-container').style.height = Math.max(20, Math.min(80, percentage)) + '%';
+        }
+      });
+      // Reset editor size on layout switch
+      function resetSizes() {
+        if (container.classList.contains('horizontal')) {
+          document.querySelector('#editor-container').style.width = '50%';
+          document.querySelector('#editor-container').style.height = '100%';
+        } else {
+          document.querySelector('#editor-container').style.height = '50%';
+          document.querySelector('#editor-container').style.width = '100%';
         }
       }
-    });
+      // Auto-resize CodeMirror when container changes
+      const resizeObserver = new ResizeObserver(() => {
+        editor.refresh();
+      });
+      resizeObserver.observe(document.querySelector('#editor-container'));
+      // Load preferences when page loads
+      window.addEventListener('DOMContentLoaded', loadPreferences);
+    </script>
+  </body>
 
-    // Download functionality
-    downloadBtn.addEventListener('click', () => {
-      const content = editor.getValue();
-      const blob = new Blob([content], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'document.html';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
-
-    // Resize functionality
-    let isDragging = false;
-
-    divider.addEventListener('mousedown', function(e) {
-      e.preventDefault();
-      isDragging = true;
-      document.body.style.cursor = container.classList.contains('horizontal') ? 'col-resize' : 'row-resize';
-    });
-
-    window.addEventListener('mouseup', function() {
-      isDragging = false;
-      document.body.style.cursor = 'default';
-    });
-
-    window.addEventListener('mousemove', function(e) {
-      if (!isDragging) return;
-
-      if (container.classList.contains('horizontal')) {
-        const containerRect = container.getBoundingClientRect();
-        const newWidth = e.clientX - containerRect.left;
-        const containerWidth = containerRect.width;
-        const percentage = (newWidth / containerWidth) * 100;
-        document.querySelector('#editor-container').style.width = Math.max(20, Math.min(80, percentage)) + '%';
-      } else {
-        const containerRect = container.getBoundingClientRect();
-        const newHeight = e.clientY - containerRect.top;
-        const containerHeight = containerRect.height;
-        const percentage = (newHeight / containerHeight) * 100;
-        document.querySelector('#editor-container').style.height = Math.max(20, Math.min(80, percentage)) + '%';
-      }
-    });
-
-    // Reset editor size on layout switch
-    function resetSizes() {
-      if (container.classList.contains('horizontal')) {
-        document.querySelector('#editor-container').style.width = '50%';
-        document.querySelector('#editor-container').style.height = '100%';
-      } else {
-        document.querySelector('#editor-container').style.height = '50%';
-        document.querySelector('#editor-container').style.width = '100%';
-      }
-    }
-
-    // Auto-resize CodeMirror when container changes
-    const resizeObserver = new ResizeObserver(() => {
-      editor.refresh();
-    });
-    resizeObserver.observe(document.querySelector('#editor-container'));
-
-    // Load preferences when page loads
-    window.addEventListener('DOMContentLoaded', loadPreferences);
-  </script>
-</body>
 </html>
